@@ -2,161 +2,98 @@
 #define __MATRIZ_H__
 #include "Resources.h"
 #include "Vector.h"
-#include <vector>
 class Matriz
 {
 private:
 	int n, m;
 	double** matriz;
-	vector<Vector*>* vectores;
+	std::vector<Vector*>* vectores;
 public:
 	Matriz(int n, int m);
 	~Matriz();
-	int Obtener_n();
-	int Obtener_m();
-	void Insertar_Elemento_Vector(int i, int j, double elemento);
-	void Modificar_Elemento_Vector(int i, int j, double elemento);
-	double Obtener_Elemento_Vector(int i, int j);
-	Vector* Obtener_Vector(int j);
-	void Insertar_Elemento(int i, int j, double elemento);
-	void Modificar_Elemento(int i, int j, double elemento);
-	double Obtener_Elemento(int i, int j);
-	void Limpiar_Matriz();
-	void Mostrar_Matriz();
-	Matriz* MatrizTranspuesta();
-	bool EsSimetrica();
-	bool EsOrtogonal();
-};
-Matriz::Matriz(int n, int m) {
-	this->n = n;
-	this->m = m;
-	matriz = new double* [n];
-
-	for (int i = 0; i < n; i++) {
-		matriz[i] = new double[m];
-	}
-
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			matriz[i][j] = NULL;
-		}
-	}
-
-	vectores = new vector<Vector*>();
-
-	for (int i = 0; i < m; i++) {
-		vectores->push_back(new Vector(n));
-	}
-}
-Matriz::~Matriz() {
-	for (int i = 0; i < n; i++) {
-		delete[] matriz[i];
-	}
-
-	delete[] matriz;
-	delete vectores;
-}
-int Matriz::Obtener_n() {
-	return n;
-}
-int Matriz::Obtener_m() {
-	return m;
-}
-void Matriz::Insertar_Elemento_Vector(int i, int j, double elemento) {
-	vectores->at(j)->Insertar_Elemento(i, elemento);
-	matriz[i][j] = elemento;
-
-}
-void Matriz::Modificar_Elemento_Vector(int i, int j, double elemento) {
-	vectores->at(j)->Insertar_Elemento(i, elemento);
-	matriz[i][j] = elemento;
-}
-double Matriz::Obtener_Elemento_Vector(int i, int j) {
-	return vectores->at(j)->Obtener_Elemento(i);
-}
-Vector* Matriz::Obtener_Vector(int j) {
-	return vectores->at(j);
-}
-void Matriz::Insertar_Elemento(int i, int j, double elemento) {
-	if (abs(elemento) < 1e-10 || isnan(elemento)) {
-		matriz[i][j] = 0;
-		vectores->at(j)->Insertar_Elemento(i, 0);
-	}
-	else {
-		matriz[i][j] = elemento;
+	int Obtener_n() { return n; }
+	int Obtener_m() { return m; }
+	void Insertar_Elemento_Vector(int i, int j, double elemento) {
 		vectores->at(j)->Insertar_Elemento(i, elemento);
+		matriz[i][j] = elemento;
 	}
-}
-void Matriz::Modificar_Elemento(int i, int j, double elemento) {
-	matriz[i][j] = elemento;
-	vectores->at(j)->Modificar_Elemento(i, elemento);
-}
-double Matriz::Obtener_Elemento(int i, int j) {
-	return matriz[i][j];
-}
-void Matriz::Limpiar_Matriz() {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			matriz[i][j] = NULL;
-			vectores->at(i)->Insertar_Elemento(j, NULL);
-		}
+	void Modificar_Elemento_Vector(int i, int j, double elemento) {
+		Insertar_Elemento_Vector(i, j, elemento);
 	}
-}
-void Matriz::Mostrar_Matriz() {
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			cout << matriz[i][j] << " ";
-		}
-		cout << endl;
+	double Obtener_Elemento_Vector(int i, int j) { return vectores->at(j)->Obtener_Elemento(i); }
+	Vector* Obtener_Vector(int j) { return vectores->at(j); }
+	void Insertar_Elemento(int i, int j, double elemento) {
+		double val = (abs(elemento) < 1e-10 || isnan(elemento)) ? 0 : elemento;
+		matriz[i][j] = val;
+		vectores->at(j)->Insertar_Elemento(i, val);
 	}
-}
-Matriz* Matriz::MatrizTranspuesta() {
-	Matriz* Transpuesta = new Matriz(m, n);
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			Transpuesta->Insertar_Elemento(j, i, matriz[i][j]);
-		}
+	void Modificar_Elemento(int i, int j, double elemento) {
+		matriz[i][j] = elemento;
+		vectores->at(j)->Modificar_Elemento(i, elemento);
 	}
-	return Transpuesta;
-}
-bool Matriz::EsSimetrica() {
-	bool Simetria = true;
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			if (matriz[i][j] != matriz[j][i]) {
-				Simetria = false;
+	double Obtener_Elemento(int i, int j) { return matriz[i][j]; }
+	void Limpiar_Matriz() {
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < m; j++) {
+				matriz[i][j] = 0;
+				vectores->at(j)->Insertar_Elemento(i, 0);
 			}
+	}
+	void Mostrar_Matriz() {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++)
+				std::cout << matriz[i][j] << " ";
+			std::cout << "\n";
 		}
 	}
-	return Simetria;
-}
-bool Matriz::EsOrtogonal() {
-	Matriz* Producto = new Matriz(n, m);
-
-	double Sumatoria;
-	for (int i = 0; i < Producto->Obtener_n(); i++) {
-		for (int j = 0; j < Producto->Obtener_m(); j++) {
-			Sumatoria = 0;
-			for (int t = 0; t < Producto->Obtener_m(); t++) {
-				Sumatoria += Obtener_Elemento(i, t) * MatrizTranspuesta()->Obtener_Elemento(t, j);
+	Matriz* MatrizTranspuesta() {
+		Matriz* Transpuesta = new Matriz(m, n);
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < m; j++)
+				Transpuesta->Insertar_Elemento(j, i, matriz[i][j]);
+		return Transpuesta;
+	}
+	bool EsSimetrica() {
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < m; j++)
+				if (matriz[i][j] != matriz[j][i])
+					return false;
+		return true;
+	}
+	bool EsOrtogonal() {
+		Matriz* Trans = MatrizTranspuesta();
+		Matriz* Producto = new Matriz(n, n);
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++) {
+				double suma = 0;
+				for (int k = 0; k < m; k++)
+					suma += matriz[i][k] * Trans->Obtener_Elemento(k, j);
+				Producto->Insertar_Elemento(i, j, suma);
 			}
-			Producto->Insertar_Elemento(i, j, Sumatoria);
-		}
-	}
-
-	for (int i = 0; i < Producto->Obtener_n(); i++) {
-		for (int j = 0; j < Producto->Obtener_m(); j++) {
-			if (i == j) {
-				if (Producto->Obtener_Elemento(i, j) == 1) {
-
-				}
-				else {
+		delete Trans;
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
+				if (i == j && Producto->Obtener_Elemento(i, j) != 1 ||
+					i != j && Producto->Obtener_Elemento(i, j) != 0) {
+					delete Producto;
 					return false;
 				}
-			}
-		}
+		delete Producto;
+		return true;
 	}
-
-	return true;
+};
+Matriz::Matriz(int n, int m) : n(n), m(m) {
+	matriz = new double* [n];
+	for (int i = 0; i < n; i++)
+		matriz[i] = new double[m]();
+	vectores = new std::vector<Vector*>();
+	for (int i = 0; i < m; i++)
+		vectores->push_back(new Vector(n));
+}
+Matriz::~Matriz() {
+	for (int i = 0; i < n; i++) delete[] matriz[i];
+	delete[] matriz;
+	for (auto v : *vectores) delete v;
+	delete vectores;
 }
 #endif // !__MATRIZ_H__
